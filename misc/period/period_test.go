@@ -28,6 +28,25 @@ var _ = Describe("Period", func() {
 		t    = []time.Time{a, b, c, d, e, f, g, h, i, j, k, l}
 	)
 
+	Describe("Given period created with input parameters e and k", func() {
+		period, err := CreatePeriod(e, k)
+
+		It("Will not fail", func() {
+			Expect(err).ShouldNot(HaveOccurred())
+		})
+		It("Will return period e upon calling Period.GetStartIncl()", func() {
+			Expect(period.GetStartIncl()).To(Equal(e))
+		})
+		It("Will return period k upon calling Period.GetEndExcl()", func() {
+			Expect(period.GetEndExcl()).To(Equal(k))
+		})
+		It("Will return periods e and k upon calling Period.Get()", func() {
+			p1, p2 := period.Get()
+			Expect(p1).To(Equal(e))
+			Expect(p2).To(Equal(k))
+		})
+	})
+
 	Describe("Given period set as d,i", func() {
 
 		var period, _ = CreatePeriod(t[3], t[8])

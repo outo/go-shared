@@ -36,6 +36,18 @@ func (period Period) Check(startIncl time.Time, endExcl time.Time) (pertiodRelat
 	return
 }
 
+func (period Period) Get() (startIncl, endExcl time.Time) {
+	return period.startIncl, period.endExcl
+}
+
+func (period Period) GetStartIncl() time.Time {
+	return period.startIncl
+}
+
+func (period Period) GetEndExcl() time.Time {
+	return period.endExcl
+}
+
 type Relationship int
 
 const (
