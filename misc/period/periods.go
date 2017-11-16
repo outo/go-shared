@@ -15,6 +15,10 @@ func CreatePeriods(periods []Period) Periods {
 	return this
 }
 
+func (periods Periods) AsSlice() []Period {
+	return append([]Period{}, periods.ps...)
+}
+
 func appendTimedBoundaries(inputTimedBoundaries []timedBoundary, periods []Period, impact int) (outputTimedBoundaries []timedBoundary) {
 	outputTimedBoundaries = append(inputTimedBoundaries)
 	for _, p := range periods {

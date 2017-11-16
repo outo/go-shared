@@ -4,7 +4,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
-	. "github.com/outo/go-common/misc/period"
+	. "github.com/outo/go-shared/misc/period"
 	"time"
 )
 
@@ -100,6 +100,24 @@ var _ = Describe("Periods", func() {
 					newPeriod("090900", "091000"),
 				})),
 			)
+		})
+	})
+
+	Describe("Given input parameters", func() {
+		period1, err := CreatePeriod(time.Now(), time.Now().Add(time.Second))
+		period2, err := CreatePeriod(time.Now(), time.Now().Add(time.Minute))
+		period3, err := CreatePeriod(time.Now(), time.Now().Add(time.Hour))
+		expectedPeriodsAsSlice := []Period{
+			period1, period2, period3,
+		}
+		periods := CreatePeriods(expectedPeriodsAsSlice)
+
+		It("Will not fail", func() {
+			Expect(err).ShouldNot(HaveOccurred())
+		})
+		It("Will return them upon call to Periods.AsSlice()", func() {
+			actualPeriodsAsSlice := periods.AsSlice()
+			Expect(actualPeriodsAsSlice).To(BeEquivalentTo(expectedPeriodsAsSlice))
 		})
 	})
 
