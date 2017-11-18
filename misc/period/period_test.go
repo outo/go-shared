@@ -7,47 +7,54 @@ import (
 	"time"
 )
 
+func ParseTimePanicOnError(timeAsString string) (result time.Time) {
+	result, err := time.Parse("150405", timeAsString)
+	if err != nil {
+		panic("helper function parseTime failed")
+	}
+	return
+}
+
 var _ = Describe("Period", func() {
 
-	const timeFormat = "150405.000"
-
 	var (
-		//order in the alphabet implies chronological order
-		a, _ = time.Parse(timeFormat, "090000.000")
-		b, _ = time.Parse(timeFormat, "100000.000")
-		c, _ = time.Parse(timeFormat, "110000.000")
-		d, _ = time.Parse(timeFormat, "120000.000")
-		e, _ = time.Parse(timeFormat, "130000.000")
-		f, _ = time.Parse(timeFormat, "140000.000")
-		g, _ = time.Parse(timeFormat, "150000.000")
-		h, _ = time.Parse(timeFormat, "160000.000")
-		i, _ = time.Parse(timeFormat, "170000.000")
-		j, _ = time.Parse(timeFormat, "180000.000")
-		k, _ = time.Parse(timeFormat, "190000.000")
-		l, _ = time.Parse(timeFormat, "200000.000")
-		t    = []time.Time{a, b, c, d, e, f, g, h, i, j, k, l}
+		//order in the slice is chronological
+		t = []time.Time{
+			ParseTimePanicOnError("090000"),
+			ParseTimePanicOnError("100000"),
+			ParseTimePanicOnError("110000"),
+			ParseTimePanicOnError("120000"),
+			ParseTimePanicOnError("130000"),
+			ParseTimePanicOnError("140000"),
+			ParseTimePanicOnError("150000"),
+			ParseTimePanicOnError("160000"),
+			ParseTimePanicOnError("170000"),
+			ParseTimePanicOnError("180000"),
+			ParseTimePanicOnError("190000"),
+			ParseTimePanicOnError("200000"),
+		}
 	)
 
-	Describe("Given period created with input parameters e and k", func() {
-		period, err := CreatePeriod(e, k)
+	Describe("Given period from 4 to 10", func() {
+		period, err := CreatePeriod(t[4], t[10])
 
 		It("Will not fail", func() {
 			Expect(err).ShouldNot(HaveOccurred())
 		})
-		It("Will return period e upon calling Period.GetStartIncl()", func() {
-			Expect(period.GetStartIncl()).To(Equal(e))
+		It("Will return time point 4 upon calling Period.GetStartIncl()", func() {
+			Expect(period.GetStartIncl()).To(Equal(t[4]))
 		})
-		It("Will return period k upon calling Period.GetEndExcl()", func() {
-			Expect(period.GetEndExcl()).To(Equal(k))
+		It("Will return time point 10 upon calling Period.GetEndExcl()", func() {
+			Expect(period.GetEndExcl()).To(Equal(t[10]))
 		})
-		It("Will return periods e and k upon calling Period.Get()", func() {
+		It("Will return time points 4 and 10 upon calling Period.Get()", func() {
 			p1, p2 := period.Get()
-			Expect(p1).To(Equal(e))
-			Expect(p2).To(Equal(k))
+			Expect(p1).To(Equal(t[4]))
+			Expect(p2).To(Equal(t[10]))
 		})
 	})
 
-	Describe("Given period set as d,i", func() {
+	Describe("Given period from 3 (incl) to 8 (excl)", func() {
 
 		var period, _ = CreatePeriod(t[3], t[8])
 
@@ -56,15 +63,15 @@ var _ = Describe("Period", func() {
 				actualRelationship := period.Check(startIncl, endExcl)
 				Expect(actualRelationship).To(Equal(expectedRelationship))
 			},
-			Entry("Will identify period as disparate and lower", period, t[0], t[1], DisparateAndLower),
-			Entry("Will identify period is adjacent and lower", period, t[0], t[3], AdjacentAndLower),
-			Entry("Will identify period as overlapping lower end", period, t[2], t[4], OverlappingLowerEnd),
-			Entry("Will identify period as contained", period, t[5], t[7], Contained),
-			Entry("Will identify period as same", period, t[3], t[8], Same),
-			Entry("Will identify period as overlapping upper end", period, t[6], t[10], OverlappingUpperEnd),
-			Entry("Will identify period as adjacent and higher", period, t[8], t[11], AdjacentAndHigher),
-			Entry("Will identify period as disparate and higher", period, t[9], t[11], DisparateAndHigher),
-			Entry("Will identify period as containing", period, t[0], t[11], Containing),
+			Entry("Will identify period from 0 to 1 as disparate and lower", period, t[0], t[1], DisparateAndLower),
+			Entry("Will identify period from 0 to 3 as adjacent and lower", period, t[0], t[3], AdjacentAndLower),
+			Entry("Will identify period from 2 to 4 as overlapping lower end", period, t[2], t[4], OverlappingLowerEnd),
+			Entry("Will identify period from 5 to 7 as contained", period, t[5], t[7], Contained),
+			Entry("Will identify period from 3 to 8 as same", period, t[3], t[8], Same),
+			Entry("Will identify period from 6 to 10 as overlapping upper end", period, t[6], t[10], OverlappingUpperEnd),
+			Entry("Will identify period from 8 to 11 as adjacent and higher", period, t[8], t[11], AdjacentAndHigher),
+			Entry("Will identify period from 9 to 11 as disparate and higher", period, t[9], t[11], DisparateAndHigher),
+			Entry("Will identify period from 0 to 11 as containing", period, t[0], t[11], Containing),
 		)
 
 	})
@@ -84,27 +91,28 @@ var _ = Describe("Period", func() {
 
 	})
 
-	Measure("the benchmark performance of Period.Check()", func(b Benchmarker) {
+	Measure("The benchmark performance of Period.Check()", func(b Benchmarker) {
 
 		const (
-			timestampFormat    = "20060102 150405.000"
-			nearlyASecondPrime = 999727999 * time.Nanosecond
+			timestampFormat = "20060102 150405.000"
+			nearlyASecond   = 987654321 * time.Nanosecond //to exercise the fractions of seconds during tests
 		)
 		periodStart, err := time.Parse(timestampFormat, "20150318 095214.522")
 		Expect(err).ShouldNot(HaveOccurred())
 
-		periodEnd := periodStart.Add(300 * nearlyASecondPrime)
+		periodEnd := periodStart.Add(300 * nearlyASecond)
 
 		period, err := CreatePeriod(periodStart, periodEnd)
 		Expect(err).ShouldNot(HaveOccurred())
 
-		benchmarkStart := periodStart.Add(-120 * nearlyASecondPrime)
-		benchmarkEnd := periodEnd.Add(120 * nearlyASecondPrime)
+		//benchmark boundary expands sideways from each of the period's boundaries as a way to ensure the adjacency and equality relationship occur
+		benchmarkStart := periodStart.Add(-120 * nearlyASecond)
+		benchmarkEnd := periodEnd.Add(120 * nearlyASecond)
 
 		counters := make(map[int]int, 10)
 		runtime := b.Time("Period.Check() with scan", func() {
-			for testStartTime := benchmarkStart; testStartTime.Before(benchmarkEnd); testStartTime = testStartTime.Add(nearlyASecondPrime) {
-				for testEndTime := testStartTime; testEndTime.Before(benchmarkEnd); testEndTime = testEndTime.Add(nearlyASecondPrime) {
+			for testStartTime := benchmarkStart; testStartTime.Before(benchmarkEnd); testStartTime = testStartTime.Add(nearlyASecond) {
+				for testEndTime := testStartTime; testEndTime.Before(benchmarkEnd); testEndTime = testEndTime.Add(nearlyASecond) {
 					periodRelationship := period.Check(testStartTime, testEndTime)
 					counters[int(periodRelationship)]++
 				}
@@ -113,11 +121,12 @@ var _ = Describe("Period", func() {
 
 		Expect(runtime.Nanoseconds()).Should(BeNumerically("<", (500 * time.Millisecond).Nanoseconds()))
 
-		count := 0
+		totalInvocations := 0
 		for _, counter := range counters {
-			count += counter
+			totalInvocations += counter
 		}
-		b.RecordValue("Total invocations", float64(count))
+		b.RecordValue("Total invocations", float64(totalInvocations))
+		b.RecordValue("Averaged approximation of time (in nanoseconds) it takes to invoke single Period.Check()", float64(int64(runtime.Nanoseconds())/int64(totalInvocations)))
 		b.RecordValue("Unknown", float64(counters[int(Unknown)]))
 		b.RecordValue("DisparateAndLower", float64(counters[int(DisparateAndLower)]))
 		b.RecordValue("AdjacentAndLower", float64(counters[int(AdjacentAndLower)]))

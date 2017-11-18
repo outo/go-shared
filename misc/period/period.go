@@ -10,28 +10,28 @@ type Period struct {
 	endExcl time.Time
 }
 
-func (period Period) Check(startIncl time.Time, endExcl time.Time) (pertiodRelationship Relationship) {
+func (period Period) Check(startIncl time.Time, endExcl time.Time) (periodRelationship Relationship) {
 	lower := period.startIncl
 	upper := period.endExcl
 
 	if !startIncl.Before(lower) && startIncl.Before(upper) && endExcl.After(upper) {
-		pertiodRelationship = OverlappingUpperEnd
+		periodRelationship = OverlappingUpperEnd
 	} else if startIncl.After(upper) {
-		pertiodRelationship = DisparateAndHigher
+		periodRelationship = DisparateAndHigher
 	} else if startIncl.Equal(upper) {
-		pertiodRelationship = AdjacentAndHigher
+		periodRelationship = AdjacentAndHigher
 	} else if startIncl.After(lower) && endExcl.Before(upper) {
-		pertiodRelationship = Contained
+		periodRelationship = Contained
 	} else if startIncl.Before(lower) && endExcl.After(upper) {
-		pertiodRelationship = Containing
+		periodRelationship = Containing
 	} else if startIncl.Equal(lower) && endExcl.Equal(upper) {
-		pertiodRelationship = Same
+		periodRelationship = Same
 	} else if startIncl.Before(lower) && endExcl.After(lower) {
-		pertiodRelationship = OverlappingLowerEnd
+		periodRelationship = OverlappingLowerEnd
 	} else if startIncl.Before(lower) && endExcl.Before(lower) {
-		pertiodRelationship = DisparateAndLower
+		periodRelationship = DisparateAndLower
 	} else if startIncl.Before(lower) && endExcl.Equal(lower) {
-		pertiodRelationship = AdjacentAndLower
+		periodRelationship = AdjacentAndLower
 	}
 	return
 }

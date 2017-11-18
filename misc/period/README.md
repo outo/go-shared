@@ -11,6 +11,13 @@ Contains constructs:
     * `GetStartIncl` copy of startIncl
     * `GetEndExcl` copy of endIncl
     
+     *Performance*
+     
+     each test performed on on an Intel® Core™ i7 4500U Processor with enough DDR3 SDRAM, 
+     consisted of 100 samples, 
+     each test based on checking the relationship between a target time range and a sliding and size-changing time range constructed to simulate each of the possible relationships 
+     took on average nearly 100 nanoseconds per PeriodCheck (with extremums at 80 and 160 nanoseconds)
+     
 * `Periods`:
 
     an immutable representation of practically (memory, language constraints) unlimited number of periods
@@ -35,7 +42,8 @@ Contains constructs:
      consisted of 1000 samples of two Periods, 
      each with about 30 distinct ranges (defragmented, stitched and sorted) 
      took on average:
-     * Subtract - 80 microseconds
-     * Union - 76 microseconds
+     * Subtract - 80 microseconds (producing nearly 30 ranges)
+     * Union - 76 microseconds (producing about 20 ranges)
      
+
      

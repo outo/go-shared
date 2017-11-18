@@ -47,16 +47,8 @@ var _ = Describe("Periods", func() {
 	Describe("Helper function converting string to periods", func() {
 		Context("Given time zero as 9am", func() {
 
-			parseTime := func(t string) time.Time {
-				result, err := time.Parse(timeFormat, t)
-				if err != nil {
-					panic("helper function parseTime failed")
-				}
-				return result
-			}
-
 			newPeriod := func(startIncl, endExcl string) (period Period) {
-				period, err := CreatePeriod(parseTime(startIncl), parseTime(endExcl))
+				period, err := CreatePeriod(ParseTimePanicOnError(startIncl), ParseTimePanicOnError(endExcl))
 				if err != nil {
 					panic("helper function newPeriod failed")
 				}
