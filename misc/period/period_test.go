@@ -7,33 +7,22 @@ import (
 	"time"
 )
 
-func ParseTimePanicOnError(timeAsString string) (result time.Time) {
-	result, err := time.Parse("150405", timeAsString)
-	if err != nil {
-		panic("helper function parseTime failed")
-	}
-	return
-}
-
 var _ = Describe("Period", func() {
-
-	var (
-		//order in the slice is chronological
-		t = []time.Time{
-			ParseTimePanicOnError("090000"),
-			ParseTimePanicOnError("100000"),
-			ParseTimePanicOnError("110000"),
-			ParseTimePanicOnError("120000"),
-			ParseTimePanicOnError("130000"),
-			ParseTimePanicOnError("140000"),
-			ParseTimePanicOnError("150000"),
-			ParseTimePanicOnError("160000"),
-			ParseTimePanicOnError("170000"),
-			ParseTimePanicOnError("180000"),
-			ParseTimePanicOnError("190000"),
-			ParseTimePanicOnError("200000"),
-		}
-	)
+	//order in the slice is chronological
+	var t = []time.Time{
+		ParseShortTimePanicOnError("090000"),
+		ParseShortTimePanicOnError("100000"),
+		ParseShortTimePanicOnError("110000"),
+		ParseShortTimePanicOnError("120000"),
+		ParseShortTimePanicOnError("130000"),
+		ParseShortTimePanicOnError("140000"),
+		ParseShortTimePanicOnError("150000"),
+		ParseShortTimePanicOnError("160000"),
+		ParseShortTimePanicOnError("170000"),
+		ParseShortTimePanicOnError("180000"),
+		ParseShortTimePanicOnError("190000"),
+		ParseShortTimePanicOnError("200000"),
+	}
 
 	Describe("Given period from 4 to 10", func() {
 		period, err := CreatePeriod(t[4], t[10])
@@ -59,21 +48,29 @@ var _ = Describe("Period", func() {
 		var period, _ = CreatePeriod(t[3], t[8])
 
 		DescribeTable("When relationship check is done",
-			func(period Period, startIncl, endExcl time.Time, expectedRelationship Relationship) {
-				actualRelationship := period.Check(startIncl, endExcl)
-				Expect(actualRelationship).To(Equal(expectedRelationship))
+			func(p Period, startIncl, endExcl time.Time, expected Relationship) {
+				actualRelationship := p.Check(startIncl, endExcl)
+				Expect(actualRelationship).To(Equal(expected))
 			},
-			Entry("Will identify period from 0 to 1 as disparate and lower", period, t[0], t[1], DisparateAndLower),
-			Entry("Will identify period from 0 to 3 as adjacent and lower", period, t[0], t[3], AdjacentAndLower),
-			Entry("Will identify period from 2 to 4 as overlapping lower end", period, t[2], t[4], OverlappingLowerEnd),
-			Entry("Will identify period from 5 to 7 as contained", period, t[5], t[7], Contained),
-			Entry("Will identify period from 3 to 8 as same", period, t[3], t[8], Same),
-			Entry("Will identify period from 6 to 10 as overlapping upper end", period, t[6], t[10], OverlappingUpperEnd),
-			Entry("Will identify period from 8 to 11 as adjacent and higher", period, t[8], t[11], AdjacentAndHigher),
-			Entry("Will identify period from 9 to 11 as disparate and higher", period, t[9], t[11], DisparateAndHigher),
-			Entry("Will identify period from 0 to 11 as containing", period, t[0], t[11], Containing),
+			Entry("Range from 0 to 1 is disparate and lower", period,
+				t[0], t[1], DisparateAndLower),
+			Entry("Range from 0 to 3 is adjacent and lower", period,
+				t[0], t[3], AdjacentAndLower),
+			Entry("Range from 2 to 4 is overlapping lower end", period,
+				t[2], t[4], OverlappingLowerEnd),
+			Entry("Range from 5 to 7 is contained", period,
+				t[5], t[7], Contained),
+			Entry("Range from 3 to 8 is same", period,
+				t[3], t[8], Same),
+			Entry("Range from 6 to 10 is overlapping upper end", period,
+				t[6], t[10], OverlappingUpperEnd),
+			Entry("Range from 8 to 11 is adjacent and higher", period,
+				t[8], t[11], AdjacentAndHigher),
+			Entry("Range from 9 to 11 is disparate and higher", period,
+				t[9], t[11], DisparateAndHigher),
+			Entry("Range from 0 to 11 is containing", period,
+				t[0], t[11], Containing),
 		)
-
 	})
 
 	Describe("Failure scenarios", func() {
@@ -88,15 +85,14 @@ var _ = Describe("Period", func() {
 			_, err := CreatePeriod(now.Add(time.Nanosecond), now)
 			Expect(err).Should(HaveOccurred())
 		})
-
 	})
 
 	Measure("The benchmark performance of Period.Check()", func(b Benchmarker) {
-
 		const (
 			timestampFormat = "20060102 150405.000"
 			nearlyASecond   = 987654321 * time.Nanosecond //to exercise the fractions of seconds during tests
 		)
+
 		periodStart, err := time.Parse(timestampFormat, "20150318 095214.522")
 		Expect(err).ShouldNot(HaveOccurred())
 
@@ -139,5 +135,12 @@ var _ = Describe("Period", func() {
 		b.RecordValue("Containing", float64(counters[int(Containing)]))
 	},
 		100)
-
 })
+
+func ParseShortTimePanicOnError(timeAsString string) (result time.Time) {
+	result, err := time.Parse("150405", timeAsString)
+	if err != nil {
+		panic("helper function parseTime failed")
+	}
+	return
+}
