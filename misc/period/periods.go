@@ -15,6 +15,16 @@ func CreatePeriods(periods []Period) Periods {
 	return this
 }
 
+func CreatePeriodsWithSingleTimeRange(startIncl, endExcl time.Time) (periods Periods, err error) {
+	period, err := CreatePeriod(startIncl, endExcl)
+	if err != nil {
+		return
+	}
+	return CreatePeriods([]Period{
+		period,
+	}), nil
+}
+
 func (periods Periods) AsSlice() []Period {
 	return append([]Period{}, periods.ps...)
 }

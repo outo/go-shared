@@ -48,7 +48,7 @@ var _ = Describe("Periods", func() {
 		Context("Given time zero as 9am", func() {
 
 			newPeriod := func(startIncl, endExcl string) (period Period) {
-				period, err := CreatePeriod(ParseTimePanicOnError(startIncl), ParseTimePanicOnError(endExcl))
+				period, err := CreatePeriod(ParseShortTimePanicOnError(startIncl), ParseShortTimePanicOnError(endExcl))
 				if err != nil {
 					panic("helper function newPeriod failed")
 				}
