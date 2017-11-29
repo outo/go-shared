@@ -1,4 +1,4 @@
-package period_test
+package pops_test
 
 import (
 	. "github.com/onsi/ginkgo"
