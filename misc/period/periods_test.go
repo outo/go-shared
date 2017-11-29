@@ -12,43 +12,53 @@ var _ = Describe("Periods", func() {
 
 	const timeFormat = "150405"
 
-	timeZero, _ := time.Parse(timeFormat, "090000.000")
+	var (
+		timeZero, _ = time.Parse(timeFormat, "090000.000")
 
-	convertStringToPeriods := func(timeZero time.Time, s string) Periods {
-		var ps []Period
-		var startTime, endTime time.Time
-		t := timeZero
-		periodStarted := false
-		for pos := 0; pos < len(s); pos++ {
+		convertStringToPeriods = func(timeZero time.Time, s string) Periods {
+			var ps []Period
+			var startTime, endTime time.Time
+			t := timeZero
+			periodStarted := false
+			for pos := 0; pos < len(s); pos++ {
 
-			if s[pos] == '1' {
-				if periodStarted {
+				if s[pos] == '1' {
+					if periodStarted {
+					} else {
+						startTime = t
+					}
+					periodStarted = true
 				} else {
-					startTime = t
+					if periodStarted {
+						p, _ := CreatePeriod(startTime, endTime)
+						ps = append(ps, p)
+					}
+					periodStarted = false
 				}
-				periodStarted = true
-			} else {
-				if periodStarted {
-					p, _ := CreatePeriod(startTime, endTime)
-					ps = append(ps, p)
-				}
-				periodStarted = false
+				t = t.Add(time.Minute)
+				endTime = t
 			}
-			t = t.Add(time.Minute)
-			endTime = t
+			if periodStarted {
+				p, _ := CreatePeriod(startTime, endTime)
+				ps = append(ps, p)
+			}
+			return CreatePeriods(ps)
 		}
-		if periodStarted {
-			p, _ := CreatePeriod(startTime, endTime)
-			ps = append(ps, p)
+
+		parseOrPanic = func(timeAsString string) (result time.Time) {
+			result, err := time.Parse("150405", timeAsString)
+			if err != nil {
+				panic("helper function parseTime failed")
+			}
+			return
 		}
-		return CreatePeriods(ps)
-	}
+	)
 
 	Describe("Helper function converting string to periods", func() {
 		Context("Given time zero as 9am", func() {
 
 			newPeriod := func(startIncl, endExcl string) (period Period) {
-				period, err := CreatePeriod(ParseShortTimePanicOnError(startIncl), ParseShortTimePanicOnError(endExcl))
+				period, err := CreatePeriod(parseOrPanic(startIncl), parseOrPanic(endExcl))
 				if err != nil {
 					panic("helper function newPeriod failed")
 				}
@@ -258,7 +268,6 @@ var _ = Describe("Periods", func() {
 		1000)
 
 	Measure("the benchmark performance of Periods.Subtract()", func(b Benchmarker) {
-
 
 		periodsA := convertStringToPeriods(timeZero,
 			"000101111010110101111100010110101011011010010110001010001001010100100001111111010010010010100101110101010111")
