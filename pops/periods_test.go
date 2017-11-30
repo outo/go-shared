@@ -14,44 +14,6 @@ var _ = Describe("Periods", func() {
 
 	var (
 		timeZero, _ = time.Parse(timeFormat, "090000.000")
-
-		convertStringToPeriods = func(timeZero time.Time, s string) p.Periods {
-			var ps []p.Period
-			var startTime, endTime time.Time
-			t := timeZero
-			periodStarted := false
-			for pos := 0; pos < len(s); pos++ {
-
-				if s[pos] == '1' {
-					if periodStarted {
-					} else {
-						startTime = t
-					}
-					periodStarted = true
-				} else {
-					if periodStarted {
-						p, _ := p.NewPeriod(startTime, endTime)
-						ps = append(ps, p)
-					}
-					periodStarted = false
-				}
-				t = t.Add(time.Minute)
-				endTime = t
-			}
-			if periodStarted {
-				p, _ := p.NewPeriod(startTime, endTime)
-				ps = append(ps, p)
-			}
-			return p.NewPeriods(ps)
-		}
-
-		parseOrPanic = func(timeAsString string) (result time.Time) {
-			result, err := time.Parse("150405", timeAsString)
-			if err != nil {
-				panic("helper function parseTime failed")
-			}
-			return
-		}
 	)
 
 	Describe("Helper function converting string to periods", func() {
@@ -289,3 +251,41 @@ var _ = Describe("Periods", func() {
 		1000)
 
 })
+
+func convertStringToPeriods(timeZero time.Time, s string) p.Periods {
+	var ps []p.Period
+	var startTime, endTime time.Time
+	t := timeZero
+	periodStarted := false
+	for pos := 0; pos < len(s); pos++ {
+
+		if s[pos] == '1' {
+			if periodStarted {
+			} else {
+				startTime = t
+			}
+			periodStarted = true
+		} else {
+			if periodStarted {
+				p, _ := p.NewPeriod(startTime, endTime)
+				ps = append(ps, p)
+			}
+			periodStarted = false
+		}
+		t = t.Add(time.Minute)
+		endTime = t
+	}
+	if periodStarted {
+		p, _ := p.NewPeriod(startTime, endTime)
+		ps = append(ps, p)
+	}
+	return p.NewPeriods(ps)
+}
+
+func parseOrPanic(timeAsString string) (result time.Time) {
+	result, err := time.Parse("150405", timeAsString)
+	if err != nil {
+		panic("helper function parseTime failed")
+	}
+	return
+}
