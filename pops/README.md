@@ -10,7 +10,7 @@ an immutable representation of time range with the lower boundary being inclusiv
 methods:
 * `Check` will identify the placement of specified time range with respect to the time range within this period
 
-![Check illustration](./docs/pops/Periods.diagram.png)
+![Check illustration](../docs/pops/Periods.diagram.png)
 
 * `Get` copy of startIncl and endIncl as multi return
 * `GetStartIncl` copy of startIncl
@@ -31,7 +31,7 @@ methods:
 * `Subtract` will return a new `Periods` instance representing the time ranges within this object that are not within specified object
 * `Union` will return a new `Periods` instance representing the time ranges within this object and specified object
 
-![Subtract&Union illustration](./docs/pops/Relationship.diagram.png)
+![Subtract&Union illustration](../docs/pops/Relationship.diagram.png)
 
 
 both methods' result is:
